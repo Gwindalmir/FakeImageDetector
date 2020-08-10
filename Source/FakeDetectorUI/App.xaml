@@ -1,0 +1,11 @@
+﻿<Application x:Class="Gwindalmir.FakeDetectorUI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Gwindalmir.FakeDetectorUI"
+             xmlns:conv="clr-namespace:Gwindalmir.FakeDetectorUI.Converters"
+             StartupUri="Views/MainWindow.xaml">
+    <Application.Resources>
+        <conv:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
+        <conv:EmptyStringToBoolConverter x:Key="EmptyStringToBoolConverter"/>
+    </Application.Resources>
+</Application>

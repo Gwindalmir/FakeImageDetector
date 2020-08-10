@@ -1,0 +1,133 @@
+﻿<Window
+        x:Class="Gwindalmir.FakeDetectorUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Gwindalmir.FakeDetectorUI"
+        xmlns:conv="clr-namespace:Gwindalmir.FakeDetectorUI.Converters"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:ia="clr-namespace:Gwindalmir.ImageAnalysis;assembly=Gwindalmir.ImageAnalysis"
+        xmlns:ViewModels="clr-namespace:Gwindalmir.FakeDetectorUI.ViewModels"
+        mc:Ignorable="d"
+        SizeChanged="Window_SizeChanged"
+        Title="Fake Image Tester" Height="400" Width="500">
+    <Window.DataContext>
+        <ViewModels:MainWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="RadioButtonListBoxStyle" TargetType="{x:Type ListBox}">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Cycle" />
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="{x:Type ListBoxItem}" >
+                        <Setter Property="Margin" Value="2, 3, 2, 2" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Border Background="Transparent">
+                                        <RadioButton Content="{TemplateBinding ContentPresenter.Content, Converter={StaticResource EnumDescriptionConverter}}"
+                                                     VerticalAlignment="Center" IsChecked="{Binding IsSelected, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="NoHeader" TargetType="{x:Type GridViewColumnHeader}">
+            <Setter Property="Visibility" Value="Collapsed" />
+        </Style>
+        <ObjectDataProvider MethodName="GetValues"
+                ObjectType="{x:Type sys:Enum}"
+                x:Key="AnalyzerAlgorithmEnum">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="ia:AnalyzerAlgorithm" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <DockPanel HorizontalAlignment="Stretch" Height="auto" LastChildFill="True" Margin="0,0,0,0" VerticalAlignment="Stretch" Width="auto">
+        <Grid DockPanel.Dock="Top" HorizontalAlignment="Stretch" Height="auto" VerticalAlignment="Top" Width="auto">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Content="Browse..." Click="BrowseButton_Click" Margin="2" Padding="2"/>
+            <TextBox Grid.Column="1" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsEnabled="False" Text="{Binding Filename}"/>
+            <Button Grid.Column="2" Content="Test Accuracy..." Click="TestButton_Click" Margin="2" Padding="2"/>
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" MinHeight="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0" Width="auto" Height="auto" MinHeight="60" MinWidth="150">
+                <Button Content="Classify" Click="ClassifyButton_Click" IsEnabled="{Binding Filename, Converter={StaticResource EmptyStringToBoolConverter}}" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Classification: " Width="auto" Height="auto"/>
+                    <Label Content="{Binding ClassLabel}" Width="auto" Height="auto"/>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Grid.Row="0" Grid.Column="1" Width="auto" Height="auto" MinHeight="60" MinWidth="150">
+                <StackPanel Orientation="Horizontal">
+                    <ListBox ItemsSource="{Binding Source={StaticResource AnalyzerAlgorithmEnum}}" SelectedValue="{Binding Algorithm}" Style="{StaticResource RadioButtonListBoxStyle}" BorderThickness="0" />
+                    <ListView ItemsSource="{Binding ClassLabels, BindsDirectlyToSource=True}" BorderThickness="0" 
+                              ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Focusable" Value="false"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style TargetType="GridViewColumnHeader">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridView.Columns>
+                                    <GridViewColumn Width="auto" DisplayMemberBinding="{Binding Path=Item1}" />
+                                    <GridViewColumn Width="auto" DisplayMemberBinding="{Binding Path=Item2, StringFormat='{}{0:P}'}" />
+                                </GridView.Columns>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
+            </StackPanel>
+            
+            <TabControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="tabControl">
+                <TabItem Header="Image Comparison">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Row="0" Grid.Column="0" Width="auto" Height="auto" Source="{Binding OriginalImage, NotifyOnTargetUpdated=True}" MinHeight="200" MinWidth="200" TargetUpdated="Image_TargetUpdated" />
+                        <Image Grid.Row="0" Grid.Column="1" Width="auto" Height="auto" Source="{Binding AnalyzedImage}" MinHeight="200" MinWidth="200" />
+                    </Grid>
+                </TabItem>
+                <TabItem Header="Confusion Matrix">
+                    <StackPanel>
+                        <CheckBox Content="Show Combined" IsChecked="{Binding ShowTotal}"/>
+                        <DataGrid ItemsSource="{Binding ConfusionMatrix}" IsReadOnly="True">
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="ContentStringFormat" Value="'{0:P0}'"/>
+                                </Style>
+                            </DataGrid.CellStyle>
+                        </DataGrid>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </DockPanel>
+</Window>

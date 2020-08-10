@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>Gwindalmir.NeuralNetwork</RootNamespace>
+    <AssemblyName>Gwindalmir.NeuralNetwork</AssemblyName>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Gwindalmir.NeuralNetwork.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Keras.NET" Version="3.7.4.2" />
+  </ItemGroup>
+
+</Project>
